@@ -25,6 +25,13 @@ def modify_xml(ip):
     mytree.write('./deployment-config/jmeter-script.jmx')
     print("Updated JMX")
 
+def run_jmeter():
+    average_latency = subprocess.check_output(
+        "/Users/ravindu/Downloads/apache-jmeter-5.3/bin/jmeter -n -t ./deployment-config/jmeter-script.jmx -l ./deployment-config/testresults.jtl | awk '/summary =/ {print $3}'",
+        shell=True)
+
+    return average_latency.decode('utf-8')
+
 if __name__ == '__main__':
     # Deploy Microservice on AKS
     subprocess.call("chmod +x ./deployment-config/deployment-automater.sh", shell=True)
@@ -38,3 +45,6 @@ if __name__ == '__main__':
     # Update Jmeter Configuration
     modify_xml(external_ip)
 
+    # Run Jmeter Test and Collect Metrics
+    average_latency = run_jmeter()
+    print("Average Latency of Deployment:",average_latency)

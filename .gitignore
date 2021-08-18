@@ -1,2 +1,4 @@
 /venv
 .idea
+jmeter.log
+/deployment-config/testresults.jtl
