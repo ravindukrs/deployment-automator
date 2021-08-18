@@ -8,7 +8,9 @@ def get_front_end_ip():
         "cd deployment-config &&  kubectl get services --namespace=sock-shop |  awk '/front-end/ {print $4}'",
         shell=True)
     external_ip = front_end_ip.decode('utf-8')
-    if(external_ip.__contains__(".")):
+    print("Current External IP: ", external_ip)
+    if external_ip.__contains__(".") and external_ip.__len__() > 6:
+        print("Returning final External IP: ", external_ip)
         return external_ip
     else:
         print("No IP detected. Retrying in 5 seconds...")
