@@ -29,7 +29,7 @@ def modify_xml(ip):
 
 def run_jmeter():
     average_latency = subprocess.check_output(
-        "/Users/ravindu/Downloads/apache-jmeter-5.3/bin/jmeter -n -t ./deployment-config/jmeter-script.jmx -l ./deployment-config/testresults.jtl | awk '/summary =/ {print $3}'",
+        "/Users/ravindu/Downloads/apache-jmeter-5.3/bin/jmeter -n -t ./deployment-config/jmeter-script.jmx -l ./deployment-config/perf-results/testresults.jtl | awk '/summary =/ {print $3}'",
         shell=True)
 
     return average_latency.decode('utf-8')
