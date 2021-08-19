@@ -6,7 +6,7 @@ echo "\033[1;34m Retriving Addon Info... \033[0m"
 az provider show -n Microsoft.OperationsManagement -o table &&
 az provider show -n Microsoft.OperationalInsights -o table &&
 echo "\033[1;34m Registering Addons \033[0m"
-az provider register --namespace Microsoft.OperationsManagement 
+az provider register --namespace Microsoft.OperationsManagement
 az provider register --namespace Microsoft.OperationalInsights
 echo "\033[1;32m Done registering addons \033[0m"
 echo "\033[1;34m Creating Cluster with single node... \033[0m"
@@ -17,12 +17,16 @@ az aks get-credentials --resource-group fypResourceGroup --name fypAKSCluster --
 echo "\033[1;32m Configuration Saved\033[0m"
 echo "\033[1;34m Retriving Nodes... \033[0m"
 kubectl get nodes
-echo "\033[1;34m Creating Deployment... \033[0m"
-kubectl apply -f complete-demo2.yaml
-echo "\033[1;32m Deployment Created\033[0m"
-echo "\033[1;34m Sleeping for 2 minutes... \033[0m"
-sleep 2m
-echo "\033[1;32m Done sleeping\033[0m"
-echo "\033[1;34m Retriving Services... \033[0m"
-kubectl get services --namespace=sock-shop
-echo "\033[1;32m Microservice Deployment is complete!\033[0m"
+#echo "\033[1;34m Creating Deployment... \033[0m"
+#kubectl apply -f complete-demo2.yaml
+echo "\033[1;34m Setting Permissions for Template Deployment... \033[0m"
+chmod +x template-deployment.sh
+#echo "\033[1;34m Executing Template Deployment... \033[0m"
+#sh template-deployment.sh $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17}
+#echo "\033[1;32m Deployment Created\033[0m"
+#echo "\033[1;34m Sleeping for 2 minutes... \033[0m"
+#sleep 2m
+#echo "\033[1;32m Done sleeping\033[0m"
+#echo "\033[1;34m Retriving Services... \033[0m"
+#kubectl get services --namespace=$1
+#echo "\033[1;32m Microservice Deployment is complete!\033[0m"
