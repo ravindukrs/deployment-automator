@@ -1,4 +1,6 @@
 /venv
 .idea
 jmeter.log
-/deployment-config/testresults.jtl
+/deployment-performance/perf-results/*
+/deployment_config/testresults.jtl
+__pycache__/
