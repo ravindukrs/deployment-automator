@@ -32,7 +32,7 @@ def modify_xml(ip):
 
 
 def run_jmeter():
-    shellcommand = "/Users/ravindu/Downloads/apache-jmeter-5.3/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
+    shellcommand = "./deployment-performance/apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
         datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $3}'"
 
     average_latency = subprocess.check_output(
