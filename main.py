@@ -32,7 +32,7 @@ def modify_xml(ip):
 
 
 def run_jmeter():
-    shellcommand = "./deployment-performance/apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
+    shellcommand = "/Users/ravindu/Downloads/apache-jmeter-5.3/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
         datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $3}'"
 
     average_latency = subprocess.check_output(
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     subprocess.call("chmod +x ./deployment_config/deployment-automater.sh", shell=True)
     subprocess.call("cd deployment_config && ./deployment-automater.sh " + get_config_string(0), shell=True)
 
-    for x in range(5):
+    for x in range(4):
         print("Entering Iteration ", x)
         # Create Deployment
         subprocess.call("chmod +x ./deployment_config/template-deployment.sh", shell=True)
@@ -103,4 +103,3 @@ if __name__ == '__main__':
         if x == 4:
             subprocess.call("chmod +x ./deployment_config/delete-resources.sh", shell=True)
             subprocess.call("cd deployment_config && ./delete-resources.sh", shell=True)
-
