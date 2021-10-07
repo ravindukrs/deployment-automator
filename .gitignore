@@ -4,3 +4,4 @@ jmeter.log
 /deployment-performance/perf-results/*
 /deployment_config/testresults.jtl
 __pycache__/
+/apache-jmeter-5.4.1
