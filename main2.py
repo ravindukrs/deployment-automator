@@ -26,6 +26,7 @@ def get_front_end_ip():
     print("Current External IP: ", external_ip)
     if external_ip.__contains__(".") and external_ip.__len__() > 6:
         print("Returning final External IP: ", external_ip)
+        time.sleep(2)
         return external_ip
     else:
         print("No IP detected. Retrying in 5 seconds...")
@@ -104,7 +105,10 @@ def target_function(configurations):
 
         # Get Public IP of Front End
         print("Getting Public IP of Front End Service")
-        external_ip = get_front_end_ip().strip()
+        external_ip = get_front_end_ip()
+        print("External IP before Stripping: ", external_ip)
+        external_ip = external_ip.strip()
+        print("External IP after Stripping: ", external_ip)
         print("External IP ", external_ip)
 
         # Update Jmeter Configuration
