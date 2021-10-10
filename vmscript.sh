@@ -21,6 +21,6 @@ tar xf apache-jmeter-5.4.1.tgz
 echo "Installing Project Requirements"
 pip install -r requirements.txt
 echo "Install kubectl"
-az aks install-cli
+sudo az aks install-cli
 echo "Running main2.py"
 python3 main2.py
