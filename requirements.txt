@@ -1,0 +1,12 @@
+botorch==0.5.1
+gpytorch==1.5.1
+joblib==1.0.1
+numpy==1.21.2
+plotly==5.3.1
+scikit-learn==1.0
+scipy==1.7.1
+six==1.16.0
+tenacity==8.0.1
+threadpoolctl==3.0.0
+torch==1.9.1
+typing-extensions==3.10.0.2
