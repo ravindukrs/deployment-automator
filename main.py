@@ -187,7 +187,7 @@ if __name__ == '__main__':
     subprocess.call("chmod +x ./deployment_config/deployment-automater.sh", shell=True)
     subprocess.call("cd deployment_config && ./deployment-automater.sh ", shell=True)
 
-    n_runs = 15
+    n_runs = 30
 
     init_x, init_y, best_init_y = generate_initial_data()
     print("Init X: ", init_x)
