@@ -146,7 +146,7 @@ def generate_initial_data():
         resource["FRONT_END_CPU"], resource["FRONT_END_MEMORY"],
         resource["ORDERS_CPU"], resource["ORDERS_MEMORY"],
         resource["PAYMENT_CPU"], resource["PAYMENT_MEMORY"],
-        resource["QUEUE_MASTER_CPU"], resource["QUEUE_MASTER_CPU"],
+        resource["QUEUE_MASTER_CPU"], resource["QUEUE_MASTER_MEMORY"],
         resource["SHIPPING_CPU"], resource["SHIPPING_MEMORY"],
         resource["USER_CPU"], resource["USER_MEMORY"],
 
