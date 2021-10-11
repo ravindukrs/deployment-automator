@@ -33,6 +33,7 @@ def get_front_end_ip():
         print("No IP detected. Retrying in 5 seconds...")
         time.sleep(5)
         get_front_end_ip()
+    return external_ip
 
 
 def modify_xml(ip):
