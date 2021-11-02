@@ -49,37 +49,26 @@ def modify_xml(ip):
 
 def run_jmeter():
     shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
-        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $3}'"
+        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $3,$16}'"
 
-    average_latency = subprocess.check_output(
+    shell_output = subprocess.check_output(
         shellcommand,
         shell=True)
 
-    return average_latency
+    shell_results_array = shell_output.decode('utf-8').splitlines()
+
+    last_result = shell_results_array[-1]
+    result = last_result.split()
+    average_latency = result[0]
+    error_percentage = result[1]
+
+    return average_latency, error_percentage
 
 
 def write_results(value):
     with open('./deployment-performance/latency-records.csv', 'a+') as file:
         file.write(value + '\n')
         print("Latency added to records")
-
-
-# def get_config_string(index):
-#     resource = props.RESOURCES[index]
-#     config_string = '{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
-#         props.VAR_NAMESPACE,
-#         resource["CARTS_CPU"], resource["CARTS_MEMORY"],
-#         resource["CATALOGUE_CPU"], resource["CATALOGUE_MEMORY"],
-#         resource["FRONT_END_CPU"], resource["FRONT_END_MEMORY"],
-#         resource["ORDERS_CPU"], resource["ORDERS_MEMORY"],
-#         resource["PAYMENT_CPU"], resource["PAYMENT_MEMORY"],
-#         resource["QUEUE_MASTER_CPU"], resource["QUEUE_MASTER_CPU"],
-#         resource["SHIPPING_CPU"], resource["SHIPPING_MEMORY"],
-#         resource["USER_CPU"], resource["USER_MEMORY"],
-#
-#     )
-#     return config_string
-
 
 def get_configuration_string(configuration):
     config_string = '{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
@@ -116,25 +105,26 @@ def target_function(configurations):
         modify_xml(external_ip)
 
         # Run Jmeter Test and Collect Metrics
-        average_latency = run_jmeter()
-        latency_array = average_latency.decode('utf-8').splitlines()
-        print("Average Latency of Deployment:", latency_array[-1])
+        average_latency, error_percentage = run_jmeter()
+
+        print("Average Latency of Deployment:", average_latency)
 
         # Write Jmeter Latency result to CSV
-        result_string = '{} {}'.format(
-            latency_array[-1],
-            config_string,
+        result_string = '{} {} {}'.format(
+            average_latency,
+            error_percentage,
+            config_string
         )
         write_results(result_string)
-        print("Latency as a Float: ", float(latency_array[-1]))
-        print("Latency Inverted: ", float(latency_array[-1]) * -1)
-        result.append(float(latency_array[-1]) * -1)
+        print("Latency as a Float: ", float(average_latency))
+        print("Latency Inverted: ", float(average_latency) * -1)
+        result.append(float(average_latency) * -1)
 
         # Delete Namespace and Deployment
         subprocess.call("chmod +x ./deployment_config/delete-deployment.sh", shell=True)
         subprocess.call("cd deployment_config && ./delete-deployment.sh " + props.VAR_NAMESPACE, shell=True)
 
-    print("From Targget Function result: ", result)
+    print("From Target Function result: ", result)
     return torch.tensor(result)
 
 
@@ -146,7 +136,7 @@ def generate_initial_data():
         resource["FRONT_END_CPU"], resource["FRONT_END_MEMORY"],
         resource["ORDERS_CPU"], resource["ORDERS_MEMORY"],
         resource["PAYMENT_CPU"], resource["PAYMENT_MEMORY"],
-        resource["QUEUE_MASTER_CPU"], resource["QUEUE_MASTER_CPU"],
+        resource["QUEUE_MASTER_CPU"], resource["QUEUE_MASTER_MEMORY"],
         resource["SHIPPING_CPU"], resource["SHIPPING_MEMORY"],
         resource["USER_CPU"], resource["USER_MEMORY"],
 
