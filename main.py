@@ -154,8 +154,13 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
 
     EI = qExpectedImprovement(model=single_model, best_f=best_init_y)
 
-    cpu_equality_constraints = (torch.tensor([0, 2, 4, 6, 8, 10, 12, 14]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 800.0)
-    memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 1700.0)
+    # REQUESTS
+    # cpu_equality_constraints = (torch.tensor([0, 2, 4, 6, 8, 10, 12, 14]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 800.0)
+    # memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 1700.0)
+
+    # LIMITS
+    cpu_equality_constraints = (torch.tensor([0, 2, 4, 6, 8, 10, 12, 14]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 2400.0)
+    memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 3600.0)
 
     equality_constraints = [cpu_equality_constraints, memory_equality_constraints]
 
@@ -185,8 +190,14 @@ if __name__ == '__main__':
     print("best_init_y : ", best_init_y)
 
     bounds = torch.tensor([
+        # REQUESTS
+        # [10., 20., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
+        # [800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700.]
+
+        # LIMITS
         [10., 20., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
-        [800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 8000., 1700., 800., 1700.]
+        [2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600.]
+
     ])
 
     for i in range(n_runs):
