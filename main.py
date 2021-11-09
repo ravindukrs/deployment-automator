@@ -45,14 +45,14 @@ def modify_xml(ip):
     print("Updated JMX")
 
 
-def run_jmeter():
+def run_jmeter(iter):
     # For Latency
     # shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
     #     datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $9,$16}'"
 
     # For TPS
     shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
-        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $7,$16}'"
+        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + "-" + str(iter) + ".jtl | awk '/summary =/ {print $7,$16}'"
 
     shell_output = subprocess.check_output(
         shellcommand,
@@ -94,7 +94,7 @@ def get_configuration_string(configuration):
     return config_string
 
 
-def target_function(configurations):
+def target_function(configurations, iter):
     result = []
     for configuration in configurations:
         # Modify the Deployment Template & Deploy new Configuration
@@ -113,7 +113,7 @@ def target_function(configurations):
         modify_xml(external_ip)
 
         # Run Jmeter Test and Collect Metrics
-        average_latency, error_percentage = run_jmeter()
+        average_latency, error_percentage = run_jmeter(iter)
 
         print("Average Latency of Deployment:", average_latency)
 
@@ -155,7 +155,7 @@ def generate_initial_data():
 
     ]])
     print("Initial Configuration: ", train_x)
-    exact_obj = target_function(train_x).unsqueeze(-1)
+    exact_obj = target_function(train_x, iter=1000).unsqueeze(-1)
     best_observed_value = exact_obj.max().item()
     return train_x, exact_obj, best_observed_value
 
@@ -217,7 +217,7 @@ if __name__ == '__main__':
         print(f"Nr. of Optimization run: {i}")
 
         new_candidate = get_next_points(init_x, init_y, best_init_y, bounds, n_points=1)
-        new_results = target_function(new_candidate).unsqueeze(-1)
+        new_results = target_function(new_candidate, i).unsqueeze(-1)
 
         print(f"New Candidate is: {new_candidate}")
 
