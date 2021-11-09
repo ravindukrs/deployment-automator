@@ -4,10 +4,8 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 import deployment_config.deployment_properties as props
 
-import os
 import torch
-import numpy as np
-# import plotly
+import re
 
 from botorch.models import SingleTaskGP, ModelListGP
 from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
@@ -48,8 +46,13 @@ def modify_xml(ip):
 
 
 def run_jmeter():
+    # For Latency
+    # shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
+    #     datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $9,$16}'"
+
+    # For TPS
     shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
-        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $9,$16}'"
+        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $7,$16}'"
 
     shell_output = subprocess.check_output(
         shellcommand,
@@ -59,7 +62,12 @@ def run_jmeter():
 
     last_result = shell_results_array[-1]
     result = last_result.split()
-    average_latency = result[0]
+    # # For Latency
+    # average_latency = result[0]
+    #
+    # For TPS
+    average_latency = float(re.findall("\d+\.\d+", result[0])[0])
+
     error_percentage = result[1]
 
     return average_latency, error_percentage
@@ -118,7 +126,12 @@ def target_function(configurations):
         write_results(result_string)
         print("Latency as a Float: ", float(average_latency))
         print("Latency Inverted: ", float(average_latency) * -1)
-        result.append(float(average_latency) * -1)
+
+        # # For Latency
+        # result.append(float(average_latency) * -1)
+        #
+        # For TPS
+        result.append(float(average_latency) * 1)
 
         # Delete Namespace and Deployment
         subprocess.call("chmod +x ./deployment_config/delete-deployment.sh", shell=True)
