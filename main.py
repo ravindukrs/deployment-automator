@@ -47,12 +47,12 @@ def modify_xml(ip):
 
 def run_jmeter():
     # For Latency
-    # shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
-    #     datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $9,$16}'"
-
-    # For TPS
     shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
-        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $7,$16}'"
+        datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $9,$16}'"
+
+    # # For TPS
+    # shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
+    #     datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $7,$16}'"
 
     shell_output = subprocess.check_output(
         shellcommand,
@@ -62,11 +62,11 @@ def run_jmeter():
 
     last_result = shell_results_array[-1]
     result = last_result.split()
-    # # For Latency
-    # average_latency = result[0]
-    #
-    # For TPS
-    average_latency = float(re.findall("\d+\.\d+", result[0])[0])
+    # For Latency
+    average_latency = result[0]
+
+    # # For TPS
+    # average_latency = float(re.findall("\d+\.\d+", result[0])[0])
 
     error_percentage = result[1]
 
@@ -127,11 +127,11 @@ def target_function(configurations):
         print("Latency as a Float: ", float(average_latency))
         print("Latency Inverted: ", float(average_latency) * -1)
 
-        # # For Latency
-        # result.append(float(average_latency) * -1)
-        #
-        # For TPS
-        result.append(float(average_latency) * 1)
+        # For Latency
+        result.append(float(average_latency) * -1)
+
+        # # For TPS
+        # result.append(float(average_latency) * 1)
 
         # Delete Namespace and Deployment
         subprocess.call("chmod +x ./deployment_config/delete-deployment.sh", shell=True)
@@ -177,14 +177,24 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
 
     equality_constraints = [cpu_equality_constraints, memory_equality_constraints]
 
+    # candidates, _ = optimize_acqf(
+    #     acq_function=EI,
+    #     bounds=bounds,
+    #     q=n_points,
+    #     equality_constraints=equality_constraints,
+    #     num_restarts=200,
+    #     raw_samples=512,
+    #     options={"batch_limit": 5, "maxiter": 200}
+    # )
+
     candidates, _ = optimize_acqf(
         acq_function=EI,
         bounds=bounds,
         q=n_points,
         equality_constraints=equality_constraints,
-        num_restarts=200,
-        raw_samples=512,
-        options={"batch_limit": 5, "maxiter": 200}
+        num_restarts=2,
+        # raw_samples=512,
+        # options={"batch_limit": 5, "maxiter": 200}
     )
 
     return candidates
@@ -195,7 +205,7 @@ if __name__ == '__main__':
     subprocess.call("chmod +x ./deployment_config/deployment-automater.sh", shell=True)
     subprocess.call("cd deployment_config && ./deployment-automater.sh ", shell=True)
 
-    n_runs = 50
+    n_runs = 100
 
     init_x, init_y, best_init_y = generate_initial_data()
     print("Init X: ", init_x)
