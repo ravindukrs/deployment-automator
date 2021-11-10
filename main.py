@@ -193,7 +193,7 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
         q=n_points,
         equality_constraints=equality_constraints,
         num_restarts=2,
-        # raw_samples=512,
+        raw_samples=10,
         # options={"batch_limit": 5, "maxiter": 200}
     )
 
