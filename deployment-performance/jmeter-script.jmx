@@ -166,7 +166,7 @@
           <stringProp name="HTTPSampler.protocol" />
           <stringProp name="HTTPSampler.contentEncoding" />
           <stringProp name="HTTPSampler.path">/cart</stringProp>
-          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <stringProp name="HTTPSampler.method">OPTIONS</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -204,7 +204,7 @@
           <stringProp name="HTTPSampler.protocol" />
           <stringProp name="HTTPSampler.contentEncoding" />
           <stringProp name="HTTPSampler.path">/orders</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.method">OPTIONS</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
