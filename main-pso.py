@@ -89,51 +89,55 @@ def get_configuration_string(configuration):
 def target_function(configuration):
     global iteration
     print("Starting iteration: ", iteration)
-    result = []
-    # Modify the Deployment Template & Deploy new Configuration
-    config_string = get_configuration_string(configuration)
-    print("Current config: ", config_string)
-    subprocess.call("chmod +x ./deployment_config/template-deployment.sh", shell=True)
-    subprocess.call("cd deployment_config && ./template-deployment.sh " + config_string, shell=True)
+    constraints_result = constraints(configuration)
+    if (constraints_result[0] >= 0.0 and constraints_result[1] >= 0.0):
+        result = []
+        # Modify the Deployment Template & Deploy new Configuration
+        config_string = get_configuration_string(configuration)
+        print("Current config: ", config_string)
+        subprocess.call("chmod +x ./deployment_config/template-deployment.sh", shell=True)
+        subprocess.call("cd deployment_config && ./template-deployment.sh " + config_string, shell=True)
 
-    external_ip = "<pending>"
-    # Get Public IP of Front End
-    while (not (external_ip.__contains__(".") and external_ip.__len__() > 6)):
-        print("Getting Public IP of Front End Service")
-        external_ip = get_front_end_ip()
-        print("External IP ", external_ip)
+        external_ip = "<pending>"
+        # Get Public IP of Front End
+        while (not (external_ip.__contains__(".") and external_ip.__len__() > 6)):
+            print("Getting Public IP of Front End Service")
+            external_ip = get_front_end_ip()
+            print("External IP ", external_ip)
 
-    # Update Jmeter Configuration
-    modify_xml(external_ip)
+        # Update Jmeter Configuration
+        modify_xml(external_ip)
 
-    # Run Jmeter Test and Collect Metrics
-    average_latency, error_percentage = run_jmeter()
+        # Run Jmeter Test and Collect Metrics
+        average_latency, error_percentage = run_jmeter()
 
-    print("Average Latency of Deployment:", average_latency)
+        print("Average Latency of Deployment:", average_latency)
 
-    # Write Jmeter Latency result to CSV
-    result_string = '{} {} {}'.format(
-        average_latency,
-        error_percentage,
-        config_string
-    )
-    write_results(result_string)
-    print("Latency as a Float: ", float(average_latency))
-    # For Latency
-    result.append(float(average_latency))
+        # Write Jmeter Latency result to CSV
+        result_string = '{} {} {}'.format(
+            average_latency,
+            error_percentage,
+            config_string
+        )
+        write_results(result_string)
+        print("Latency as a Float: ", float(average_latency))
+        # For Latency
+        result.append(float(average_latency))
 
-    # # For TPS
-    # result.append(float(average_latency) * 1)
+        # # For TPS
+        # result.append(float(average_latency) * 1)
 
-    # Delete Namespace and Deployment
-    subprocess.call("chmod +x ./deployment_config/delete-deployment.sh", shell=True)
-    subprocess.call("cd deployment_config && ./delete-deployment.sh " + props.VAR_NAMESPACE, shell=True)
+        # Delete Namespace and Deployment
+        subprocess.call("chmod +x ./deployment_config/delete-deployment.sh", shell=True)
+        subprocess.call("cd deployment_config && ./delete-deployment.sh " + props.VAR_NAMESPACE, shell=True)
 
 
-    print("From Target Function result: ", result)
-    iteration = iteration + 1
-    return result[0]
-
+        print("From Target Function result: ", result)
+        iteration = iteration + 1
+        return result[0]
+    else:
+        print("Ignoring Iteration")
+        return (80000.0)
 
 def generate_initial_data():
     resource = props.RESOURCES[0]
@@ -175,14 +179,14 @@ if __name__ == '__main__':
 
     # n_runs = 100
     #
-    # init_x, init_y = generate_initial_data()
-    # print("Init X: ", init_x)
-    # print("Init Y: ", init_y)
+    init_x, init_y = generate_initial_data()
+    print("Init X: ", init_x)
+    print("Init Y: ", init_y)
 
     bounds = [
         # LIMITS
-        [500., 800., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
-        [3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100.]
+        [300., 500., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
+        [500., 800., 300., 410., 300., 410., 300., 410., 300., 410., 300., 410., 300., 410., 300., 410.]
 
     ]
     print("Starting Optimization")

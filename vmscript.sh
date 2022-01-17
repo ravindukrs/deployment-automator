@@ -23,4 +23,4 @@ pip install -r requirements.txt
 echo "Install kubectl"
 sudo az aks install-cli
 echo "Running main2.py"
-python3 main.py
+python3 main-bo-twoservice.py
