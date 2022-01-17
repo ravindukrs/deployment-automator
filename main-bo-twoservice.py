@@ -139,7 +139,7 @@ def target_function(configurations):
         subprocess.call("cd deployment_config && ./delete-deployment.sh " + props.VAR_NAMESPACE, shell=True)
 
     print("From Target Function result: ", result)
-    return torch.tensor(result)
+    return torch.tensor(result, dtype=torch.double)
 
 
 def generate_initial_data():
@@ -147,7 +147,7 @@ def generate_initial_data():
     train_x = torch.tensor([[
         resource["CATALOGUE_CPU"], resource["CATALOGUE_MEMORY"],
         resource["USER_CPU"], resource["USER_MEMORY"],
-    ]])
+    ]], dtype=torch.double)
 
     print("Initial Configuration: ", train_x)
     exact_obj = target_function(train_x).unsqueeze(-1)
@@ -171,8 +171,8 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
     # memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 3600.0)
 
     # LIMITS
-    cpu_equality_constraints = (torch.tensor([0, 2]), torch.tensor([1.0, 1.0]), 500.0)
-    memory_equality_constraints = (torch.tensor([1, 3]), torch.tensor([1.0, 1.0]), 400.0)
+    cpu_equality_constraints = (torch.tensor([0, 2]), torch.tensor([1.0, 1.0], dtype=torch.double), 500.0)
+    memory_equality_constraints = (torch.tensor([1, 3]), torch.tensor([1.0, 1.0], dtype=torch.double), 400.0)
 
     equality_constraints = [cpu_equality_constraints, memory_equality_constraints]
 
@@ -225,7 +225,7 @@ if __name__ == '__main__':
         [25., 25., 25., 25.],
         [500., 400., 500., 400.]
 
-    ])
+    ], dtype=torch.double)
 
     for i in range(n_runs):
         print(f"Nr. of Optimization run: {i}")
