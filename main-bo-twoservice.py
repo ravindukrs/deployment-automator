@@ -202,8 +202,8 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
 
 if __name__ == '__main__':
     # Create AKS Cluster
-    subprocess.call("chmod +x ./deployment_config/deployment-automater.sh", shell=True)
-    subprocess.call("cd deployment_config && ./deployment-automater.sh ", shell=True)
+    # subprocess.call("chmod +x ./deployment_config/deployment-automater.sh", shell=True)
+    # subprocess.call("cd deployment_config && ./deployment-automater.sh ", shell=True)
 
     n_runs = 100
 
