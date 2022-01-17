@@ -41,13 +41,13 @@ def modify_xml(ip):
         if (item.attrib['name'] == 'HTTPSampler.domain'):
             item.text = ip
 
-    mytree.write('./deployment-performance/jmeter-script.jmx')
+    mytree.write('./deployment-performance/jmeter-script-twoservice.jmx')
     print("Updated JMX")
 
 
 def run_jmeter():
     # For Latency
-    shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/twotestresults" + str(
+    shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script-twoservice.jmx -l ./deployment-performance/perf-results/jtl/twotestresults" + str(
         datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $9,$16}'"
 
     # # For TPS
