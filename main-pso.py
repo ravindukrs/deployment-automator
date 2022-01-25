@@ -137,7 +137,7 @@ def target_function(configuration):
         return result[0]
     else:
         print("Ignoring Iteration")
-        return (80000.0)
+        return (240000.0)
 
 def generate_initial_data():
     resource = props.RESOURCES[0]
@@ -153,6 +153,8 @@ def generate_initial_data():
 
     ]
     print("Initial Configuration: ", train_x)
+    exact_obj = target_function(train_x)
+    # Run it a second time
     exact_obj = target_function(train_x)
     return train_x, exact_obj
 
@@ -190,7 +192,7 @@ if __name__ == '__main__':
 
     ]
     print("Starting Optimization")
-    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=10, maxiter=10 ,f_ieqcons=constraints)
+    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=50, maxiter=1000 ,f_ieqcons=constraints)
     print("Optimization Complete")
     print("xopt: ",xopt)
     print("fopt: ",fopt)
