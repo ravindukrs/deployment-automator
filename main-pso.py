@@ -170,7 +170,7 @@ def constraints(x_train):
     print("CPU Usage: ", cpu)
     memory = memory_usage(x_train)
     print("Memory Usage: ", memory)
-    return [3000.0 - cpu, 4100.0 - memory]
+    return [2400.0 - cpu, 3600.0 - memory]
 
 
 
