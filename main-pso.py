@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 import deployment_config.deployment_properties as props
 from pyswarm import pso
+import re
 
 iteration = 0
 
@@ -122,7 +123,11 @@ def target_function(configuration):
         write_results(result_string)
         print("Latency as a Float: ", float(average_latency))
         # For Latency
-        result.append(float(average_latency))
+        errfloat = float(re.findall("\d+\.\d+", error_percentage)[0])
+        if(errfloat > 10.0):
+            result.append(240000)
+        else:
+            result.append(float(average_latency))
 
         # # For TPS
         # result.append(float(average_latency) * 1)
@@ -179,8 +184,6 @@ if __name__ == '__main__':
     subprocess.call("chmod +x ./deployment_config/deployment-automater.sh", shell=True)
     subprocess.call("cd deployment_config && ./deployment-automater.sh ", shell=True)
 
-    # n_runs = 100
-    #
     init_x, init_y = generate_initial_data()
     print("Init X: ", init_x)
     print("Init Y: ", init_y)
@@ -188,11 +191,11 @@ if __name__ == '__main__':
     bounds = [
         # LIMITS
         [300., 500., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
-        [500., 800., 300., 410., 300., 410., 300., 410., 300., 410., 300., 410., 300., 410., 300., 410.]
+        [2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600.]
 
     ]
     print("Starting Optimization")
-    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=50, maxiter=1000 ,f_ieqcons=constraints)
+    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=50, maxiter=10000 ,f_ieqcons=constraints)
     print("Optimization Complete")
     print("xopt: ",xopt)
     print("fopt: ",fopt)
