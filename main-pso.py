@@ -142,7 +142,18 @@ def target_function(configuration):
         return result[0]
     else:
         print("Ignoring Iteration")
-        return (240000.0)
+        panelty  = panelty_function(constraints_result[0], constraints_result[1])
+        return (panelty)
+
+def panelty_function(cpu, memory):
+    zcpu = (cpu * -1 ) + 2400.0
+    zmemory = (memory * -1 ) + 3600.0
+    panelty_from_resources = zcpu +  zmemory
+    panelty = 240000 +  panelty_from_resources
+    print("Panelty: ",  panelty)
+    return panelty
+
+
 
 def generate_initial_data():
     resource = props.RESOURCES[0]
