@@ -195,7 +195,7 @@ if __name__ == '__main__':
 
     ]
     print("Starting Optimization")
-    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=50, maxiter=10000 ,f_ieqcons=constraints)
+    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=80, maxiter=10000 ,f_ieqcons=constraints)
     print("Optimization Complete")
     print("xopt: ",xopt)
     print("fopt: ",fopt)
