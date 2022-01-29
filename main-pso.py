@@ -72,7 +72,7 @@ def write_results(value):
 
 def write_candidates(value, cpu, memory):
     with open('./deployment-performance/candidate-values.csv', 'a+') as file:
-        file.write(' '.join(value) + cpu + memory + '\n')
+        file.write(' '.join(map(str, value)) + " " + cpu + " " + memory + '\n')
 
 def get_configuration_string(configuration):
     config_string = '{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(

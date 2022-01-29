@@ -1,152 +1,102 @@
-import subprocess
-import time
-import xml.etree.ElementTree as ET
-from datetime import datetime
-import deployment_config.deployment_properties as props
-
+from botorch.test_functions import Hartmann
 import torch
-import re
+import os
 
-from botorch.models import SingleTaskGP, ModelListGP
-from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
+from botorch.models import FixedNoiseGP, ModelListGP
+from gpytorch.mlls.sum_marginal_log_likelihood import SumMarginalLogLikelihood
+from botorch.acquisition.objective import ConstrainedMCObjective
 
-from botorch import fit_gpytorch_model
 
-from botorch.acquisition.monte_carlo import qExpectedImprovement
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+dtype = torch.double
+SMOKE_TEST = os.environ.get("SMOKE_TEST")
+
+NOISE_SE = 0.5
+train_yvar = torch.tensor(NOISE_SE ** 2, device=device, dtype=dtype)
+neg_hartmann6 = Hartmann(negate=True)
+
+
+def outcome_constraint(X):
+    """L1 constraint; feasible if less than or equal to zero."""
+    return X.sum(dim=-1) - 3
+
+def weighted_obj(X):
+    """Feasibility weighted objective; zero if not feasible."""
+    return neg_hartmann6(X) * (outcome_constraint(X) <= 0).type_as(X)
+
+def generate_initial_data(n=10):
+    # generate training data
+    train_x = torch.rand(10, 6, device=device, dtype=dtype)
+    exact_obj = neg_hartmann6(train_x).unsqueeze(-1)  # add output dimension
+    exact_con = outcome_constraint(train_x).unsqueeze(-1)  # add output dimension
+    train_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
+    train_con = exact_con + NOISE_SE * torch.randn_like(exact_con)
+    best_observed_value = weighted_obj(train_x).max().item()
+    return train_x, train_obj, train_con, best_observed_value
+
+
+def initialize_model(train_x, train_obj, train_con, state_dict=None):
+    # define models for objective and constraint
+    model_obj = FixedNoiseGP(train_x, train_obj, train_yvar.expand_as(train_obj)).to(train_x)
+    model_con = FixedNoiseGP(train_x, train_con, train_yvar.expand_as(train_con)).to(train_x)
+    # combine into a multi-output GP model
+    model = ModelListGP(model_obj, model_con)
+    mll = SumMarginalLogLikelihood(model.likelihood, model)
+    # load state dict if it is passed
+    if state_dict is not None:
+        model.load_state_dict(state_dict)
+    return mll, model
+
+def obj_callable(Z):
+    return Z[..., 0]
+
+
+def constraint_callable(Z):
+    return Z[..., 1]
+
+
+# define a feasibility-weighted objective for optimization
+constrained_obj = ConstrainedMCObjective(
+    objective=obj_callable,
+    constraints=[constraint_callable],
+)
+
 from botorch.optim import optimize_acqf
-import numpy as np
 
 
+bounds = torch.tensor([[0.0] * 6, [1.0] * 6], device=device, dtype=dtype)
 
-def target_function(configurations):
-    result = []
-    config = []
-    for configuration in configurations:
-        # Modify the Deployment Template & Deploy new Configuration
-        outcome = -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (configuration[0] ** 2 + configuration[1] ** 2))) - np.exp(0.5 * (np.cos(2 * np.pi * configuration[0]) + np.cos(2 * np.pi * configuration[1]))) + np.e + 20
-        print("Outcome of Evaluation: ", outcome)
-        print("Outcome of Evaluation Inverted: ", float(outcome) * -1)
-
-        # For Latency
-        result.append(float(outcome) * -1)
-
-        outcome_string = '{} {} {}'.format(
-            outcome,
-            configuration[0],
-            configuration[1]
-        )
-
-        with open('./deployment-performance/test-function.csv', 'a+') as file:
-            file.write(outcome_string + '\n')
-            print("Outcome added to records")
-
-    print("From Target Function result: ", result)
-    return torch.tensor(result, dtype=torch.double)
+BATCH_SIZE = 3 if not SMOKE_TEST else 2
+NUM_RESTARTS = 10 if not SMOKE_TEST else 2
+RAW_SAMPLES = 512 if not SMOKE_TEST else 32
 
 
-def generate_initial_data():
-    train_x = torch.tensor([[
-        np.random.uniform(-5.0, 5.0),
-        np.random.uniform(-5.0, 5.0)
-    ]], dtype=torch.double)
-
-    print("Initial Configuration: ", train_x)
-    exact_obj = target_function(train_x).unsqueeze(-1)
-    best_observed_value = exact_obj.max().item()
-    return train_x, exact_obj, best_observed_value
-
-
-def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
-    single_model = SingleTaskGP(init_x, init_y)
-    mll = ExactMarginalLogLikelihood(single_model.likelihood, single_model)
-    fit_gpytorch_model(mll)
-
-    EI = qExpectedImprovement(model=single_model, best_f=best_init_y)
-
-    # REQUESTS
-    # cpu_equality_constraints = (torch.tensor([0, 2, 4, 6, 8, 10, 12, 14]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 800.0)
-    # memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 1700.0)
-
-    # # LIMITS
-    # cpu_equality_constraints = (torch.tensor([0, 2, 4, 6, 8, 10, 12, 14]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 2400.0)
-    # memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 3600.0)
-
-    # LIMITS
-    # cpu_equality_constraints = (torch.tensor([0, 2]), torch.tensor([1.0, 1.0], dtype=torch.double), 500.0)
-    # memory_equality_constraints = (torch.tensor([1, 3]), torch.tensor([1.0, 1.0], dtype=torch.double), 400.0)
-
-    # equality_constraints = [cpu_equality_constraints, memory_equality_constraints]
-
-    # candidates, _ = optimize_acqf(
-    #     acq_function=EI,
-    #     bounds=bounds,
-    #     q=n_points,
-    #     equality_constraints=equality_constraints,
-    #     num_restarts=200,
-    #     raw_samples=512,
-    #     options={"batch_limit": 5, "maxiter": 200}
-    # )
-
-    # candidates, _ = optimize_acqf(
-    #     acq_function=EI,
-    #     bounds=bounds,
-    #     q=n_points,
-    #     # equality_constraints=equality_constraints,
-    #     num_restarts=2,
-    #     raw_samples=10,
-    #     return_best_only = True
-    #     # options={"batch_limit": 5, "maxiter": 200}
-    # )
-
+def optimize_acqf_and_get_observation(acq_func):
+    """Optimizes the acquisition function, and returns a new candidate and a noisy observation."""
+    # optimize
     candidates, _ = optimize_acqf(
-        acq_function=EI,
+        acq_function=acq_func,
         bounds=bounds,
-        q=1,
-        num_restarts=200,
-        raw_samples=1024,
-        options={"batch_limit": 5, "maxiter": 100}
+        q=BATCH_SIZE,
+        num_restarts=NUM_RESTARTS,
+        raw_samples=RAW_SAMPLES,  # used for intialization heuristic
+        options={"batch_limit": 5, "maxiter": 200},
     )
+    # observe new values
+    new_x = candidates.detach()
+    exact_obj = neg_hartmann6(new_x).unsqueeze(-1)  # add output dimension
+    exact_con = outcome_constraint(new_x).unsqueeze(-1)  # add output dimension
+    new_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
+    new_con = exact_con + NOISE_SE * torch.randn_like(exact_con)
+    return new_x, new_obj, new_con
 
-    return candidates
 
-
-if __name__ == '__main__':
-
-    n_runs = 100
-
-    init_x, init_y, best_init_y = generate_initial_data()
-    print("Init X: ", init_x)
-    print("Init Y: ", init_y)
-    print("best_init_y : ", best_init_y)
-
-    bounds = torch.tensor([
-        # REQUESTS
-        # [10., 20., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
-        # [800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700., 800., 1700.]
-
-        # # LIMITS
-        # [10., 20., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
-        # [2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600.]
-
-        # LIMITS
-        [-5.0, -5.0],
-        [5.0, 5.0]
-
-    ], dtype=torch.double)
-
-    for i in range(n_runs):
-        print(f"Nr. of Optimization run: {i}")
-
-        new_candidate = get_next_points(init_x, init_y, best_init_y, bounds, n_points=1)
-        new_results = target_function(new_candidate).unsqueeze(-1)
-
-        print(f"New Candidate is: {new_candidate}")
-
-        init_x = torch.cat([init_x, new_candidate])
-        init_y = torch.cat([init_y, new_results])
-
-        best_init_y = init_y.max().item()
-        print(f"New Result is: {new_results}")
-        print(f"Best point performs this way: {best_init_y}")
-        print(f"Best Corresponding Index of Y value performs this way: {torch.argmax(init_y)}")
-        print(f"Best Corresponding Y value performs this way: {init_x[torch.argmax(init_y)]}")
+def update_random_observations(best_random):
+    """Simulates a random policy by taking a the current list of best values observed randomly,
+    drawing a new random point, observing its value, and updating the list.
+    """
+    rand_x = torch.rand(BATCH_SIZE, 6)
+    next_random_best = weighted_obj(rand_x).max().item()
+    best_random.append(max(best_random[-1], next_random_best))
+    return best_random

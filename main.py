@@ -96,6 +96,7 @@ def get_configuration_string(configuration):
 
 def target_function(configurations):
     result = []
+    config = []
     for configuration in configurations:
         # Modify the Deployment Template & Deploy new Configuration
         config_string = get_configuration_string(configuration)
@@ -114,6 +115,7 @@ def target_function(configurations):
 
         # Run Jmeter Test and Collect Metrics
         average_latency, error_percentage = run_jmeter()
+        errfloat = float(re.findall("\d+\.\d+", error_percentage)[0])
 
         print("Average Latency of Deployment:", average_latency)
 
@@ -128,7 +130,10 @@ def target_function(configurations):
         print("Latency Inverted: ", float(average_latency) * -1)
 
         # For Latency
-        result.append(float(average_latency) * -1)
+        if(errfloat > 10.0):
+            result.append((float(average_latency)+1000000.0) * -1)
+        else:
+            result.append(float(average_latency) * -1)
 
         # # For TPS
         # result.append(float(average_latency) * 1)
@@ -198,6 +203,7 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
         equality_constraints=equality_constraints,
         num_restarts=2,
         raw_samples=10,
+        return_best_only = True
         # options={"batch_limit": 5, "maxiter": 200}
     )
 
@@ -209,7 +215,7 @@ if __name__ == '__main__':
     subprocess.call("chmod +x ./deployment_config/deployment-automater.sh", shell=True)
     subprocess.call("cd deployment_config && ./deployment-automater.sh ", shell=True)
 
-    n_runs = 100
+    n_runs = 10000
 
     init_x, init_y, best_init_y = generate_initial_data()
     print("Init X: ", init_x)
@@ -248,5 +254,5 @@ if __name__ == '__main__':
         print(f"Best Corresponding Index of Y value performs this way: {torch.argmax(init_y)}")
         print(f"Best Corresponding Y value performs this way: {init_x[torch.argmax(init_y)]}")
 
-    subprocess.call("chmod +x ./deployment_config/delete-resources.sh", shell=True)
-    subprocess.call("cd deployment_config && ./delete-resources.sh", shell=True)
+    # subprocess.call("chmod +x ./deployment_config/delete-resources.sh", shell=True)
+    # subprocess.call("cd deployment_config && ./delete-resources.sh", shell=True)
