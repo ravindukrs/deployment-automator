@@ -70,6 +70,9 @@ def write_results(value):
         file.write(value + '\n')
         print("Latency added to records")
 
+def write_candidates(value):
+    with open('./deployment-performance/candidate-values.csv', 'a+') as file:
+        file.write(' '.join(value) + '\n')
 
 def get_configuration_string(configuration):
     config_string = '{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
