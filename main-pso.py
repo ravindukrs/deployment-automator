@@ -186,6 +186,7 @@ def constraints(x_train):
     print("CPU Usage: ", cpu)
     memory = memory_usage(x_train)
     print("Memory Usage: ", memory)
+    print(x_train)
     return [2400.0 - cpu, 3600.0 - memory]
 
 
@@ -206,7 +207,7 @@ if __name__ == '__main__':
 
     ]
     print("Starting Optimization")
-    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=18000, maxiter=1000000 ,f_ieqcons=constraints)
+    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=160, maxiter=1000 ,f_ieqcons=constraints)
     print("Optimization Complete")
     print("xopt: ",xopt)
     print("fopt: ",fopt)
