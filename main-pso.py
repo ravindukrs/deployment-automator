@@ -70,9 +70,9 @@ def write_results(value):
         file.write(value + '\n')
         print("Latency added to records")
 
-def write_candidates(value):
+def write_candidates(value, cpu, memory):
     with open('./deployment-performance/candidate-values.csv', 'a+') as file:
-        file.write(' '.join(value) + '\n')
+        file.write(' '.join(value) + cpu + memory + '\n')
 
 def get_configuration_string(configuration):
     config_string = '{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
@@ -190,6 +190,7 @@ def constraints(x_train):
     memory = memory_usage(x_train)
     print("Memory Usage: ", memory)
     print(x_train)
+    write_candidates(x_train, cpu, memory)
     return [2400.0 - cpu, 3600.0 - memory]
 
 
