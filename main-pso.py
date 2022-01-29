@@ -146,6 +146,7 @@ def target_function(configuration):
     else:
         print("Ignoring Iteration")
         panelty  = panelty_function(constraints_result[0], constraints_result[1])
+        print("Returning Panelty: ", panelty)
         return (panelty)
 
 def panelty_function(cpu, memory):
@@ -211,7 +212,7 @@ if __name__ == '__main__':
 
     ]
     print("Starting Optimization")
-    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=160, maxiter=1000 ,f_ieqcons=constraints)
+    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=160, maxiter=10000 ,f_ieqcons=constraints)
     print("Optimization Complete")
     print("xopt: ",xopt)
     print("fopt: ",fopt)
