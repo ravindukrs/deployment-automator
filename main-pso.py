@@ -151,7 +151,7 @@ def target_function(configuration):
 def panelty_function(cpu, memory):
     zcpu = (cpu * -1 ) + 2400.0
     zmemory = (memory * -1 ) + 3600.0
-    panelty_from_resources = (zcpu + zmemory)*1000
+    panelty_from_resources = ((zcpu + zmemory)*1000) ** 2
     panelty = 240000 +  panelty_from_resources
     print("Panelty: ",  panelty)
     return panelty
