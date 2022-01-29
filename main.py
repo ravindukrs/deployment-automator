@@ -131,9 +131,10 @@ def target_function(configurations):
 
         # For Latency
         if(errfloat > 10.0):
-            result.append((float(average_latency)+1000000.0) * -1)
+            manual_error = errfloat * 400
+            result.append(((float(average_latency)+manual_error)*errfloat) * -1)
         else:
-            result.append(float(average_latency) * -1)
+            result.append((float(average_latency)*errfloat) * -1)
 
         # # For TPS
         # result.append(float(average_latency) * 1)
@@ -162,6 +163,8 @@ def generate_initial_data():
     print("Initial Configuration: ", train_x)
     exact_obj = target_function(train_x).unsqueeze(-1)
     best_observed_value = exact_obj.max().item()
+    exact_obj = target_function(train_x).unsqueeze(-1)
+    best_observed_value = exact_obj.max().item()
     return train_x, exact_obj, best_observed_value
 
 
@@ -181,8 +184,8 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
     # memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 3600.0)
 
     # LIMITS
-    cpu_equality_constraints = (torch.tensor([0, 2, 4, 6, 8, 10, 12, 14]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 3000.0)
-    memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 4100.0)
+    cpu_equality_constraints = (torch.tensor([0, 2, 4, 6, 8, 10, 12, 14]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 2400.0)
+    memory_equality_constraints = (torch.tensor([1, 3, 5, 7, 9, 11, 13, 15]), torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), 3600.0)
 
     equality_constraints = [cpu_equality_constraints, memory_equality_constraints]
 
@@ -232,8 +235,8 @@ if __name__ == '__main__':
         # [2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600.]
 
         # LIMITS
-        [500., 800., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
-        [3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100., 3000., 4100.]
+        [300., 500., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
+        [2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600.]
 
     ])
 
