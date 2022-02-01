@@ -7,6 +7,7 @@ import re
 from skopt import gp_minimize
 import os
 import sys
+import matplotlib.pyplot as plt
 from skopt.plots import plot_convergence
 
 iteration = 0
