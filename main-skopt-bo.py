@@ -157,13 +157,19 @@ def target_function(configuration):
 
 
 def panelty_function(cpu, memory):
-    zcpu = (cpu * -1) + 2400.0
-    zmemory = (memory * -1) + 3600.0
-    panelty_from_resources = ((zcpu + zmemory) * 1000) ** 2
-    panelty = 240000 + panelty_from_resources
-    print("Panelty: ", panelty)
-    return panelty
+    zcpu = (cpu * -1 )
+    zmemory = (memory * -1 )
+    panelty_from_resources = ((zcpu + zmemory)) ** 5
+    if(zcpu >= 0. and zmemory >= 0.):
+        panelty_from_resources = ((zcpu + zmemory)) ** 5
+    if(zcpu >0.  and zmemory < 0.):
+        panelty_from_resources = ((zcpu)) ** 5
+    if (zcpu < 0. and zmemory > 0.):
+        panelty_from_resources = ((zmemory)) ** 5
 
+    panelty = 200000 +  panelty_from_resources
+    print("Panelty: ",  panelty)
+    return panelty
 
 def generate_initial_data():
     resource = props.RESOURCES[0]
@@ -226,15 +232,15 @@ if __name__ == '__main__':
     ]
     print("Starting Optimization")
     res = gp_minimize(target_function,  # the function to minimize
-                      [(300., 2400.), (500., 3600.),
-                       (10., 2400.), (25., 3600.),
-                       (25., 2400.), (50., 3600.),
-                       (25., 2400.), (50., 3600.),
-                       (25., 2400.), (25., 3600.),
-                       (25., 2400.), (50., 3600.),
-                       (25., 2400.), (50., 3600.),
-                       (25., 2400.), (25., 3600.)],  # the bounds on each dimension of x
-                      # x0= train_x,            # the starting point
+                      [(300., 1200.), (500., 1200.),
+                       (10., 1200.), (25., 1200.),
+                       (25., 1200.), (50., 1200.),
+                       (25., 1200.), (50., 1200.),
+                       (25., 1200.), (25., 1200.),
+                       (25., 1200.), (50., 1200.),
+                       (25., 1200.), (50., 1200.),
+                       (25., 1200.), (25., 1200.)],  # the bounds on each dimension of x
+                      xi = 100.,
                       x0=train_x,
                       acq_func="EI",  # the acquisition function (optional)
                       n_calls=100,  # the number of evaluations of f including at x0
