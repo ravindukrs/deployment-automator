@@ -127,14 +127,10 @@ def target_function(configuration):
         print("Latency as a Float: ", float(average_latency))
         # For Latency
         errfloat = float(re.findall("\d+\.\d+", error_percentage)[0])
-        if(errfloat > 7.5):
-            result.append(float(average_latency) * errfloat)
-        else:
-            result.append(float(average_latency))
+        result.append(float(average_latency) * errfloat)
 
         # # For TPS
         # result.append(float(average_latency) * 1)
-
         # Delete Namespace and Deployment
         subprocess.call("chmod +x ./deployment_config/delete-deployment.sh", shell=True)
         subprocess.call("cd deployment_config && ./delete-deployment.sh " + props.VAR_NAMESPACE, shell=True)
@@ -150,10 +146,17 @@ def target_function(configuration):
         return (panelty)
 
 def panelty_function(cpu, memory):
-    zcpu = (cpu * -1 ) + 2400.0
-    zmemory = (memory * -1 ) + 3600.0
-    panelty_from_resources = ((zcpu + zmemory)*1000) ** 2
-    panelty = 240000 +  panelty_from_resources
+    zcpu = (cpu * -1 )
+    zmemory = (memory * -1 )
+    panelty_from_resources = ((zcpu + zmemory)) ** 10
+    if(zcpu >= 0. and zmemory >= 0.):
+        panelty_from_resources = ((zcpu + zmemory)) ** 10
+    if(zcpu >0.  and zmemory < 0.):
+        panelty_from_resources = ((zcpu)) ** 10
+    if (zcpu < 0. and zmemory > 0.):
+        panelty_from_resources = ((zmemory)) ** 10
+
+    panelty = 200000 +  panelty_from_resources
     print("Panelty: ",  panelty)
     return panelty
 
@@ -208,11 +211,11 @@ if __name__ == '__main__':
     bounds = [
         # LIMITS
         [300., 500., 10., 25., 25., 50., 25., 50., 25., 25., 25., 50., 25., 50., 25., 25.],
-        [2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600., 2400., 3600.]
+        [1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200., 1200.]
 
     ]
     print("Starting Optimization")
-    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=160, maxiter=10000)
+    xopt, fopt = pso(target_function, lb=bounds[0], ub=bounds[1], swarmsize=200, maxiter=10000)
     print("Optimization Complete")
     print("xopt: ",xopt)
     print("fopt: ",fopt)
