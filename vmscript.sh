@@ -23,4 +23,4 @@ pip install -r requirements.txt
 echo "Install kubectl"
 sudo az aks install-cli
 echo "Running skopt-bo.py"
-python3 main-skopt-bo.py
+python3 main-pso.py
