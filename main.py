@@ -202,7 +202,8 @@ def get_next_points(init_x, init_y, best_init_y, bounds, n_points=1):
         equality_constraints=equality_constraints,
         num_restarts=2,
         raw_samples=10,
-        return_best_only = True
+        return_best_only = True,
+        sequential = True
         # options={"batch_limit": 5, "maxiter": 200}
     )
 
