@@ -130,11 +130,7 @@ def target_function(configurations):
         print("Latency Inverted: ", float(average_latency) * -1)
 
         # For Latency
-        if(errfloat > 10.0):
-            manual_error = errfloat * 400
-            result.append(((float(average_latency)+manual_error)*errfloat) * -1)
-        else:
-            result.append((float(average_latency)*errfloat) * -1)
+        result.append((float(average_latency)*errfloat) * -1)
 
         # # For TPS
         # result.append(float(average_latency) * 1)

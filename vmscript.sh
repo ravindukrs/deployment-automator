@@ -22,5 +22,5 @@ echo "Installing Project Requirements"
 pip install -r requirements.txt
 echo "Install kubectl"
 sudo az aks install-cli
-echo "Running main-pso.py"
-python3 main-pso.py
+echo "Running main.py"
+python3 main.py
