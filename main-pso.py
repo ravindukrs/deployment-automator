@@ -127,7 +127,10 @@ def target_function(configuration):
         print("Latency as a Float: ", float(average_latency))
         # For Latency
         errfloat = float(re.findall("\d+\.\d+", error_percentage)[0])
-        result.append(float(average_latency) * errfloat)
+        if errfloat > 1.0:
+            result.append(float(average_latency) * errfloat)
+        else:
+            result.append(float(average_latency))
 
         # # For TPS
         # result.append(float(average_latency) * 1)
