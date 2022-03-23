@@ -45,7 +45,7 @@ def run_jmeter():
     # # For TPS
     # shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
     #     datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $7,$16}'"
-    shellcommand = "./apache-jmeter-5.4.1/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
+    shellcommand = "./apache-jmeter-5.4.3/bin/jmeter -n -t ./deployment-performance/jmeter-script.jmx -l ./deployment-performance/perf-results/jtl/testresults" + str(
         datetime.now().strftime("%d-%m-%Y-%H:%M:%S")) + ".jtl | awk '/summary =/ {print $7,$16}'"
 
     shell_output = subprocess.check_output(

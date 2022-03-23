@@ -15,9 +15,9 @@ sudo apt install -y python3-pip
 echo "Change Directory to Automator"
 cd deployment-automator/
 echo "Download Jmeter"
-wget http://www.gtlib.gatech.edu/pub/apache/jmeter/binaries/apache-jmeter-5.4.1.tgz
+wget http://www.gtlib.gatech.edu/pub/apache/jmeter/binaries/apache-jmeter-5.4.3.tgz
 echo "Extract Jmeter"
-tar xf apache-jmeter-5.4.1.tgz
+tar xf apache-jmeter-5.4.3.tgz
 echo "Installing Project Requirements"
 pip install -r requirements.txt
 echo "Install kubectl"
