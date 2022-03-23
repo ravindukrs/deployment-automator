@@ -23,4 +23,4 @@ pip install -r requirements.txt
 echo "Install kubectl"
 sudo az aks install-cli
 echo "Running main.py"
-python3 main-tps.py
+python3 main-pso-tps.py
